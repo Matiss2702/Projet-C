@@ -1,8 +1,8 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <stdio.h>
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1366
+#define WINDOW_HEIGHT 768
 #define  LIMIT_FRAME 16
 
 void SDL_ExitWithError(const char *message);
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
  }
  //execution du programme...
  // creation du rendu et windows
-if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH,WINDOW_HEIGHT,0,&window,&renderer)!=0)
+if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH,WINDOW_HEIGHT,SDL_WINDOW_RESIZABLE,&window,&renderer)!=0)
     SDL_ExitWithError("impossible de crée la fenetre et le rendu");
 
 //..........................................................................//
@@ -80,10 +80,7 @@ if(SDL_RenderDrawRect(renderer, &menu1)!=0)
 //les evenements
 SDL_bool program_launched = SDL_TRUE;
 
-
-
-while(program_launched)
-{//image fond principal + texture
+//image fond principal + texture
 
     SDL_Surface *image_principal = NULL;
     SDL_Texture *texture = NULL;
@@ -117,6 +114,9 @@ while(program_launched)
     }
 
     //........................................................//
+    SDL_RenderPresent(renderer);
+while(program_launched)
+{
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -159,7 +159,7 @@ frame_limited = SDL_GetTicks()+LIMIT_FRAME; //debut
     frame_limited = SDL_GetTicks()+LIMIT_FRAME;// fin pour s assurer de la syncronisation
 
 //...................................................................//
-    SDL_RenderPresent(renderer);
+
     SDL_Quit();
     return EXIT_SUCCESS; //return 0;
 }
