@@ -3,10 +3,11 @@
 #include <stdio.h>
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
+#define  LIMIT_FRAME 16
 
 void SDL_ExitWithError(const char *message);
 void SDL_ExitTexture (const char *message, SDL_Window **screen, SDL_Renderer **renderer , SDL_Texture **texture);
-
+void SDL_LimitedFPS(unsigned int limit);
 
 int main(int argc, char **argv) {
  SDL_Window *window =NULL;
@@ -18,44 +19,10 @@ int main(int argc, char **argv) {
  }
  //execution du programme...
  // creation du rendu et windows
-if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH,WINDOW_HEIGHT,SDL_WINDOW_FULLSCREEN_DESKTOP,&window,&renderer)!=0)
+if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH,WINDOW_HEIGHT,0,&window,&renderer)!=0)
     SDL_ExitWithError("impossible de crée la fenetre et le rendu");
 
 //..........................................................................//
-//image fond principal + texture
-
-       SDL_Surface *image_principal = NULL;
-       SDL_Texture *texture = NULL;
-       image_principal = SDL_LoadBMP("src/fond_principal.bmp");
-
-       if(image_principal == NULL)
-       {
-           SDL_ExitTexture;
-
-       }
-       texture = SDL_CreateTextureFromSurface(renderer, image_principal);
-       SDL_FreeSurface(image_principal); //liberation de l'espace
-
-
-       if(texture == NULL)
-       {
-           SDL_ExitTexture;
-       }
-       SDL_Rect rectangle;
-       if(SDL_QueryTexture(texture, NULL , NULL, &rectangle.w,&rectangle.h)!=0)
-       {
-           SDL_ExitTexture;
-       }
-       rectangle.x =0;
-       rectangle.y =0;
-
-
-       if(SDL_RenderCopy(renderer,texture,NULL,&rectangle)!=0)
-       {
-           SDL_ExitTexture;
-       }
-
-       //........................................................//
 
   //coloration du rendu (blanc)
 if (SDL_SetRenderDrawColor(renderer,255,255,255, SDL_ALPHA_OPAQUE)!=0)
@@ -110,13 +77,102 @@ if(SDL_RenderDrawRect(renderer, &menu1)!=0)
         SDL_ExitWithError("impossible de dessiner un rectangle");
 
 //...................................................................//
+//les evenements
+SDL_bool program_launched = SDL_TRUE;
 
+
+
+while(program_launched)
+{//image fond principal + texture
+
+    SDL_Surface *image_principal = NULL;
+    SDL_Texture *texture = NULL;
+    image_principal = SDL_LoadBMP("src/fond_principal.bmp");
+
+    if(image_principal == NULL)
+    {
+        SDL_ExitTexture;
+
+    }
+    texture = SDL_CreateTextureFromSurface(renderer, image_principal);
+    SDL_FreeSurface(image_principal); //liberation de l'espace
+
+
+    if(texture == NULL)
+    {
+        SDL_ExitTexture;
+    }
+    SDL_Rect rectangle;
+    if(SDL_QueryTexture(texture, NULL , NULL, &rectangle.w,&rectangle.h)!=0)
+    {
+        SDL_ExitTexture;
+    }
+    rectangle.x =0;
+    rectangle.y =0;
+
+
+    if(SDL_RenderCopy(renderer,texture,NULL,&rectangle)!=0)
+    {
+        SDL_ExitTexture;
+    }
+
+    //........................................................//
+    SDL_Event event;
+    while(SDL_PollEvent(&event))
+    {
+        switch(event.type)
+        {
+            case SDL_MOUSEBUTTONDOWN:
+                if(event.button.clicks >=2)
+
+                    break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_LEAVE)
+                    printf(" la souris est sortie de la fenetre\n");
+                    if (event.window.event == SDL_WINDOWEVENT_ENTER)
+                        printf("la souris est rentre dans la fenetre");
+
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.scancode)
+                {
+                    case SDL_SCANCODE_DOWN:
+                        printf("vous avez appuye sur la fleche du bas \n");
+                        continue;
+                    default:
+                        continue;
+                }
+
+
+            case SDL_QUIT:
+                program_launched = SDL_FALSE;
+                break;
+            default:
+                break;
+        }
+    }
+}
+//.......................................//
+//fps
+unsigned  int frame_limited =0;
+frame_limited = SDL_GetTicks()+LIMIT_FRAME; //debut
+    SDL_LimitedFPS(frame_limited); // pour controle la limite
+    frame_limited = SDL_GetTicks()+LIMIT_FRAME;// fin pour s assurer de la syncronisation
+
+//...................................................................//
     SDL_RenderPresent(renderer);
-    SDL_Delay(5000);
     SDL_Quit();
     return EXIT_SUCCESS; //return 0;
 }
-
+void SDL_LimitedFPS(unsigned int limit)
+{
+    unsigned int ticks = SDL_GetTicks();
+    if (limit< ticks)
+        return;
+    else if(limit > ticks + LIMIT_FRAME)
+        SDL_Delay(LIMIT_FRAME);
+        else
+        SDL_Delay(limit - ticks);
+}
 void SDL_ExitTexture (const char *message, SDL_Window **screen, SDL_Renderer **renderer , SDL_Texture **texture)
 {
     SDL_DestroyRenderer(*renderer);
