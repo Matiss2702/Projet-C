@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <audio.h>
 #include <SDL_mixer.h>
+#include <SDL_ttf.h>
+
 
 
 
@@ -22,6 +24,7 @@ int main(int argc, char **argv) {
 
 //les evenements
     SDL_bool program_launched = SDL_TRUE;
+    TTF_Init();
 
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO)!=0) {
         SDL_ExitWithError("initialisation SDL");
@@ -35,25 +38,25 @@ int main(int argc, char **argv) {
 
 //..........................................................................//
 
-    //coloration du rendu (blanc)
-    if (SDL_SetRenderDrawColor(renderer,255,255,255, SDL_ALPHA_OPAQUE)!=0)
-        SDL_ExitWithError("impossible de charger la couleur du rendu");
+
 //..................................................//
 
 //image fond principal + texture
 
-    SDL_Surface *image_principal = NULL;
+    SDL_Surface *fenetre = NULL;
+    SDL_Surface *fond =NULL;
     SDL_Texture *texture = NULL;
-    image_principal = IMG_Load("src/fond_principal.png");
+        //    fond = IMG_Load("src/fond_principal.png");
 
-    if(image_principal == NULL)
+    if(fenetre == NULL)
     {
         SDL_ExitTexture;
 
     }
-    texture = SDL_CreateTextureFromSurface(renderer, image_principal);
-    SDL_FreeSurface(image_principal); //liberation de l'espace
-
+    texture = SDL_CreateTextureFromSurface(renderer, fenetre);
+    SDL_FreeSurface(fenetre); //liberation de l'espace
+    texture = SDL_CreateTextureFromSurface(renderer, fond);
+    SDL_FreeSurface(fond); //liberation de l'espace
 
     if(texture == NULL)
     {
@@ -64,8 +67,8 @@ int main(int argc, char **argv) {
     {
         SDL_ExitTexture;
     }
-    rectangle.x =0;
-    rectangle.y =0;
+    rectangle.x =400;
+    rectangle.y = 600;
 
 
     if(SDL_RenderCopy(renderer,texture,NULL,&rectangle)!=0)
@@ -73,57 +76,41 @@ int main(int argc, char **argv) {
         SDL_ExitTexture;
     }
 
-//création de rectangle
-    SDL_Rect menu1;
+//cree police
+    if (TTF_Init() != 0)
+    {
+        fprintf(stderr, "Erreur d'initialisation TTF : %s\n", TTF_GetError());
+    }
+    TTF_Font * font1;
+    font1 = TTF_OpenFont("JOUER.ttf", 72 );
+    TTF_CloseFont(font1);
+    int iW, iH;
+    SDL_Color     couleur  = {255, 255, 255};
+    SDL_Surface * surf     = TTF_RenderText_Blended(font1, "PLAY!", couleur);
+    SDL_Texture * texttext = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_QueryTexture(texttext, NULL, NULL, &iW, &iH);
+    SDL_RenderCopy(renderer, texttext, NULL, &rectangle);/*
+TTF_Font *fontJOUER;
+fontJOUER= TTF_OpenFont("JOUER.ttf",22);
+SDL_Color fontColor ={0,0,0};
 
-    menu1.x=600;
-    menu1.y=200;
-    menu1.w=300;
-    menu1.h=100;
 
+//.....................................//
 
-    SDL_Rect menu2;
+//zone de text
 
-    menu2.x=600;
-    menu2.y=350;
-    menu2.w=300;
-    menu2.h=100;
+    SDL_Surface *JOUER;
+    SDL_Rect JOUERPosition;
+    printf("le text :%s\n",JOUER);
+    JOUER= TTF_RenderText_Solid(fontJOUER,"PLAY !",fontColor);
 
+    JOUERPosition.x=600;
+    JOUERPosition.y=200;
+    SDL_BlitSurface(fenetre,NULL,JOUER,&JOUERPosition);
+   SDL_FreeSurface(JOUER);
+     int SDL_UpdateWindowSurface(SDL_Window *window);*/
 
-    SDL_Rect menu3;
-
-    menu3.x=600;
-    menu3.y=500;
-    menu3.w=300;
-    menu3.h=100;
-//..................................................................//
-//chargement de la couleur du rendu suivant les rectangle
-
-    if(SDL_RenderFillRect(renderer,&menu1)!=0)
-        SDL_ExitWithError("impossible de charger la couleur du rendu");
-
-    if(SDL_RenderFillRect(renderer,&menu2)!=0)
-        SDL_ExitWithError("impossible de charger la couleur du rendu");
-
-    if(SDL_RenderFillRect(renderer,&menu3)!=0)
-        SDL_ExitWithError("impossible de charger la couleur du rendu");
-
-    if(SDL_SetRenderDrawColor(renderer,255,255,255,SDL_ALPHA_OPAQUE)!=0)
-        SDL_ExitWithError("impossible de charger la couleur du rendu");
-//...............................................................//
-//insertion des different rectangle
-    if(SDL_RenderDrawRect(renderer, &menu1)!=0)
-        SDL_ExitWithError("impossible de dessiner un rectangle");
-
-    if(SDL_RenderDrawRect(renderer, &menu2)!=0)
-        SDL_ExitWithError("impossible de dessiner un rectangle");
-
-    if(SDL_RenderDrawRect(renderer, &menu3)!=0)
-        SDL_ExitWithError("impossible de dessiner un rectangle");
-
-//...................................................................//
-    //........................................................//
-    SDL_RenderPresent(renderer);
+SDL_RenderPresent(renderer);
 while(program_launched)
 {
     SDL_Event event;
@@ -131,9 +118,10 @@ while(program_launched)
     {
         switch(event.type)
         {
+
             case SDL_MOUSEBUTTONDOWN:
-                if(event.button.clicks >=2)
                     if(event.button.button== SDL_BUTTON_LEFT)
+
                         // load the MP3 file "music.mp3" to play as music
 
 
@@ -166,16 +154,23 @@ while(program_launched)
                 }
 
 
-// play music forever
-// Mix_Music *music; // I assume this has been loaded already
+                // play music forever
+                // Mix_Music *music; // I assume this has been loaded already
                 if(Mix_PlayMusic(music, -1)==-1) {
                     printf("Mix_PlayMusic: %s\n", Mix_GetError());
                     // well, there's no music, but most games don't break without music...
                 }
+                // resume music playback
+                Mix_ResumeMusic();
                         printf("clic gauche effectué\n");
+
                 if(event.button.button== SDL_BUTTON_RIGHT)
                     printf("clic droit effectué\n");
-                    break;
+
+                     // pause music playback
+                    //Mix_PauseMusic();
+                continue;
+
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_LEAVE)
                     printf(" la souris est sortie de la fenetre\n");
@@ -186,6 +181,20 @@ while(program_launched)
                 {
                     case SDL_SCANCODE_DOWN:
                         printf("vous avez appuye sur la fleche du bas \n");
+                        // set the music volume to 1/2 maximum, and then check it
+                        printf("volume was    : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME/2));
+                        printf("volume is now : %d\n", Mix_VolumeMusic(-1));
+                        continue;
+                    case SDL_SCANCODE_UP:
+// set the music volume to 1/2 maximum, and then check it
+                        printf("volume was    : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME*2));
+                        printf("volume is now : %d\n", Mix_VolumeMusic(+1));
+
+                    case SDL_SCANCODE_B:
+
+                        // resume music playback
+                        Mix_ResumeMusic();
+                        continue;
                         continue;
                     default:
                         continue;
@@ -209,6 +218,7 @@ frame_limited = SDL_GetTicks()+LIMIT_FRAME; //debut
 
 //...................................................................//
     Mix_CloseAudio();
+    TTF_Quit();
     SDL_Quit();
     return EXIT_SUCCESS; //return 0;
 }
@@ -236,4 +246,4 @@ void SDL_ExitWithError(const char *message)
     SDL_Quit();
     exit(EXIT_FAILURE);
 }
-//gcc src/main.c -o bin/prog -I include -L lib  -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer
+//gcc src/main.c -o bin/prog -I include -L lib  -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
