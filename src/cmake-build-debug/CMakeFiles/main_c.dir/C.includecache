@@ -6,9 +6,17 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/33788/Desktop/Projet_C_2021-2022/src/main.c
+C:/Git/Projet-C/src/main.c
 SDL.h
 -
+SDL_image.h
+-
 stdio.h
+-
+audio.h
+-
+SDL_mixer.h
+-
+SDL_ttf.h
 -
 

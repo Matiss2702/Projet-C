@@ -46,13 +46,13 @@ int main(int argc, char **argv) {
     SDL_Surface *fenetre = NULL;
     SDL_Surface *fond =NULL;
     SDL_Texture *texture = NULL;
-        //    fond = IMG_Load("src/fond_principal.png");
+    fond = IMG_Load("src/fond_principal.png");
 
     if(fenetre == NULL)
     {
         SDL_ExitTexture;
-
     }
+
     texture = SDL_CreateTextureFromSurface(renderer, fenetre);
     SDL_FreeSurface(fenetre); //liberation de l'espace
     texture = SDL_CreateTextureFromSurface(renderer, fond);
@@ -82,17 +82,19 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Erreur d'initialisation TTF : %s\n", TTF_GetError());
     }
     TTF_Font * font1;
-    font1 = TTF_OpenFont("JOUER.ttf", 72 );
-    TTF_CloseFont(font1);
+    font1 = TTF_OpenFont("JOUER.ttf", 12 );
+    //TTF_CloseFont(font1);
+
     int iW, iH;
     SDL_Color     couleur  = {255, 255, 255};
     SDL_Surface * surf     = TTF_RenderText_Blended(font1, "PLAY!", couleur);
     SDL_Texture * texttext = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_QueryTexture(texttext, NULL, NULL, &iW, &iH);
-    SDL_RenderCopy(renderer, texttext, NULL, &rectangle);/*
-TTF_Font *fontJOUER;
-fontJOUER= TTF_OpenFont("JOUER.ttf",22);
-SDL_Color fontColor ={0,0,0};
+    SDL_RenderCopy(renderer, texttext, NULL, &rectangle);
+    /*
+    TTF_Font *fontJOUER;
+    fontJOUER= TTF_OpenFont("JOUER.ttf",22);
+    SDL_Color fontColor ={0,0,0};
 
 
 //.....................................//
@@ -107,8 +109,9 @@ SDL_Color fontColor ={0,0,0};
     JOUERPosition.x=600;
     JOUERPosition.y=200;
     SDL_BlitSurface(fenetre,NULL,JOUER,&JOUERPosition);
-   SDL_FreeSurface(JOUER);
-     int SDL_UpdateWindowSurface(SDL_Window *window);*/
+    SDL_FreeSurface(JOUER);
+    int SDL_UpdateWindowSurface(SDL_Window *window);
+     */
 
 SDL_RenderPresent(renderer);
 while(program_launched)
@@ -125,20 +128,20 @@ while(program_launched)
                         // load the MP3 file "music.mp3" to play as music
 
 
-// start SDL with audio support
+                        // start SDL with audio support
                         if(SDL_Init(SDL_INIT_AUDIO)==-1) {
                             printf("SDL_Init: %s\n", SDL_GetError());
                             exit(1);
                         }
-// open 44.1KHz, signed 16bit, system byte order,
-//      stereo audio, using 1024 byte chunks
+                // open 44.1KHz, signed 16bit, system byte order,
+                //      stereo audio, using 1024 byte chunks
                 if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1) {
                     printf("Mix_OpenAudio: %s\n", Mix_GetError());
                     exit(2);
                 }
 
 
-// load support for the OGG and MOD sample/music formats
+                // load support for the OGG and MOD sample/music formats
                 int flags=MIX_INIT_OGG|MIX_INIT_MOD;
                 int initted=Mix_Init(flags);
                 if(initted&flags != flags) {
@@ -186,7 +189,7 @@ while(program_launched)
                         printf("volume is now : %d\n", Mix_VolumeMusic(-1));
                         continue;
                     case SDL_SCANCODE_UP:
-// set the music volume to 1/2 maximum, and then check it
+                        // set the music volume to 1/2 maximum, and then check it
                         printf("volume was    : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME*2));
                         printf("volume is now : %d\n", Mix_VolumeMusic(+1));
 
