@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/33788/Desktop/Projet_C_2021-2022/src
+# Install script for directory: C:/Users/33788/Desktop/Projet-C-main/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/33788/Desktop/Projet_C_2021-2022/src/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/33788/Desktop/Projet-C-main/src/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
