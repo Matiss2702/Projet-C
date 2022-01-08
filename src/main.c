@@ -8,6 +8,7 @@
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <sqlite3.h>
+#include <time.h>
 
 
 #define WINDOW_WIDTH 1366
@@ -21,9 +22,9 @@ void SDL_ExitTexture(const char *message, SDL_Window **screen, SDL_Renderer **re
 void SDL_LimitedFPS(unsigned int limit);
 
 void SDL_Fenetre2();
-
+void hello();
 void SDL_game();
-
+unsigned int lastTime = 0, currentTime;
 SDL_Renderer *renderer = NULL;
 SDL_Surface *fenetre = NULL;
 SDL_Surface *fond = NULL;
@@ -33,11 +34,12 @@ SDL_Surface *Z = NULL;
 SDL_Surface *S = NULL;
 SDL_Surface *Q = NULL;
 SDL_Surface *D = NULL;
-Score = NULL;
+SDL_Window *window = NULL;
+
+int score = 0;
 SDL_Texture *texture2 = NULL;
 
 int main(int argc, char **argv) {
-    SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 /*
     sqlite3 *db;
@@ -65,7 +67,7 @@ int main(int argc, char **argv) {
         SDL_ExitWithError("initialisation SDL");
     }
     //execution du programme...
-
+    const Uint64 timeout = SDL_GetTicks64()+5000;
 
 
     if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE, &window, &renderer) != 0)
@@ -129,6 +131,7 @@ int main(int argc, char **argv) {
     TTF_CloseFont(font1);
 
     SDL_RenderPresent(renderer);
+
     while (program_launched) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -139,11 +142,118 @@ int main(int argc, char **argv) {
                         printf("%d/%d\n", event.motion.x, event.motion.y);
                     if (event.motion.x >= 600 && event.motion.x <= 800 && event.motion.y >= 300 &&
                         event.motion.y <= 400) {
+                        fond2 = IMG_Load("src/image-fond.png");
 
-                        SDL_Fenetre2();
-                        SDL_game();
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                        SDL_FreeSurface(fond2); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+                        SDL_Rect rectangle2;
+                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        rectangle2.x = 0;
+                        rectangle2.y = 0;
+                        rectangle2.h = 800;
+                        rectangle2.w = 1366;
+
+
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        while (SDL_GetTicks64() < timeout) {
+                        Z = IMG_Load("src/Z.jpg");
+
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, Z);
+                        SDL_FreeSurface(Z); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+                        SDL_Rect rectangle3;
+                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        rectangle3.x = 200;
+                        rectangle3.y = 500;
+                        rectangle3.h = 100;
+                        rectangle3.w = 100;
+
+
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
+                            SDL_ExitTexture;
+                        }
+
+                        SDL_RenderPresent(renderer);
+                        }
+                        fond2 = IMG_Load("src/image-fond.png");
+
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                        SDL_FreeSurface(fond2); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        SDL_RenderPresent(renderer);
+                       while (SDL_GetTicks64() < timeout){
+                        case SDL_SCANCODE_Z:
+
+                            printf("ok");
+                            score = score + 200;
+                         }
+                        if (SDL_GetTicks64() > timeout) {
+                            printf("%d le score est de : ", score);
+                            score = score - 100;
+                            printf("%d trop tard ! le score est de:", score);
+                        }
+
+
                         continue;
+                        case SDL_SCANCODE_S:
+                            score = score - 50;
+                        printf("%d le score est de : ", score);
+                        continue;
+
+                        case SDL_SCANCODE_Q:
+                            score = score - 50;
+                        printf("%d le score est de :", score);
+                        continue;
+                        case SDL_SCANCODE_D:
+                            score = score - 50;
+                        printf("%d le score est de : ", score);
+                        continue;
+
                     }
+
+
+
+                    //SDL_Fenetre2();
+                    //SDL_game();
+                    continue;
+
 
                     if (SDL_Init(SDL_INIT_AUDIO) == -1) {
                         printf("SDL_Init: %s\n", SDL_GetError());
@@ -209,7 +319,6 @@ int main(int argc, char **argv) {
                             // resume music playback
                             Mix_ResumeMusic();
                             continue;
-                            continue;
                         default:
                             continue;
                     }
@@ -263,60 +372,11 @@ void SDL_ExitWithError(const char *message) {
 
 void SDL_Fenetre2() {
 
-
-    int SDL_UpdateWindowSurface(SDL_Window *window);
-    SDL_ExitTexture;
-    // printf("fenetre lancé %s\n",message);
-    /*SDL_Surface *fenetre = NULL;
-    SDL_Surface *fond2 =NULL;
-    SDL_Texture *texture2 = NULL;
-*/
-    fond2 = IMG_Load("src/image-fond.png");
-
-    if (fenetre == NULL) {
-        SDL_ExitTexture;
-
-    }
-    texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
-    SDL_FreeSurface(fenetre); //liberation de l'espace
-    texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
-    SDL_FreeSurface(fond2); //liberation de l'espace
-
-    if (texture2 == NULL) {
-        SDL_ExitTexture;
-    }
-    SDL_Rect rectangle2;
-    if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
-        SDL_ExitTexture;
-    }
-    rectangle2.x = 0;
-    rectangle2.y = 0;
-    rectangle2.h = 800;
-    rectangle2.w = 1366;
+    printf("oui");
 
 
-    if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
-        SDL_ExitTexture;
-    }
-    SDL_RenderPresent(renderer);
 
-    SDL_bool program_launched = SDL_TRUE;
-    while (program_launched) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-            switch (event.type) {
-                {
-                    case SDL_MOUSEBUTTONDOWN:
-                        if (event.button.button == SDL_BUTTON_RIGHT)
-                            printf("clic droit effectué\n");
-                }
-                case SDL_QUIT:
-                    program_launched = SDL_FALSE;
-                    break;
-                default:
-                    break;
-            }
-    }
+
 }
 
 void SDL_game() {
@@ -359,25 +419,24 @@ void SDL_game() {
                         if (event.button.button == SDL_BUTTON_RIGHT)
                             printf("clic droit effectué\n");
                     case SDL_SCANCODE_Z:
-                        if(SDL_Delay<5000)
-                            Score = Score +200;
-                    printf("%d le score est de : \n",Score);
-                    else
-                        Score = Score -100;
-                    printf("%d trop tard ! le score est de: \n",Score);
+                        if(0 < 5000)
+                            score = score +200;
+                    printf("%d le score est de : \n",score);
+                        score = score -100;
+                    printf("%d trop tard ! le score est de: \n",score);
                         continue;
                     case SDL_SCANCODE_S:
-                        Score =Score -50;
-                    printf("%d le score est de : \n",Score);
+                        score =score -50;
+                    printf("%d le score est de : \n",score);
                         continue;
 
                     case SDL_SCANCODE_Q:
-                        Score =Score -50;
-                    printf("%d le score est de : \n",Score);
+                        score =score -50;
+                    printf("%d le score est de : \n",score);
                         continue;
                     case SDL_SCANCODE_D:
-                        Score =Score -50;
-                    printf("%d le score est de : \n",Score);
+                        score =score -50;
+                    printf("%d le score est de : \n",score);
                         continue;
                 }
                 case SDL_QUIT:
@@ -387,6 +446,10 @@ void SDL_game() {
                     break;
             }
     }
+}
+void hello()
+{
+    printf("hello world");
 }
 
 
