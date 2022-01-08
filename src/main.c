@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
-#include <audio.h>
+//#include <audio.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
@@ -67,7 +67,8 @@ int main(int argc, char **argv) {
         SDL_ExitWithError("initialisation SDL");
     }
     //execution du programme...
-    const Uint64 timeout = SDL_GetTicks64()+5000;
+
+    const Uint64 timeout2 = SDL_GetTicks64()+8000;
 
 
     if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE, &window, &renderer) != 0)
@@ -136,12 +137,50 @@ int main(int argc, char **argv) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-
                 case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_RIGHT) {
+                        printf("clic droit effectué\n");
+
+                        if (SDL_Init(SDL_INIT_AUDIO) == -1) {
+                            printf("SDL_Init: %s\n", SDL_GetError());
+                            exit(1);
+                        }
+                        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+                            printf("Mix_OpenAudio: %s\n", Mix_GetError());
+                            exit(2);
+                        }
+                        int flags = MIX_INIT_OGG | MIX_INIT_MOD;
+                        int initted = Mix_Init(flags);
+                        if (initted & flags != flags) {
+                            printf("Mix_Init: Failed to init required ogg and mod support!\n");
+                            printf("Mix_Init: %s\n", Mix_GetError());
+                            // handle error
+                        }
+                        Mix_Music *music;
+                        music = Mix_LoadMUS("src/music.mp3");
+                        if (!music) {
+                            printf("Mix_LoadMUS(\"music.mp3\"): %s\n", Mix_GetError());
+                            // this might be a critical error...
+                        }
+                        if (Mix_PlayMusic(music, -1) == -1) {
+                            printf("Mix_PlayMusic: %s\n", Mix_GetError());
+                        }
+                        // resume music playback
+                        Mix_ResumeMusic();
+                        printf("clic gauche effectué\n");
+
+
+                        // pause music playback
+                        //Mix_PauseMusic();
+                    }
                     if (event.button.button == SDL_BUTTON_LEFT)
                         printf("%d/%d\n", event.motion.x, event.motion.y);
+
+
                     if (event.motion.x >= 600 && event.motion.x <= 800 && event.motion.y >= 300 &&
                         event.motion.y <= 400) {
+                        const Uint64 timeout = SDL_GetTicks64()+5000;
+
                         fond2 = IMG_Load("src/image-fond.png");
 
                         if (fenetre == NULL) {
@@ -197,56 +236,64 @@ int main(int argc, char **argv) {
                         if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
                             SDL_ExitTexture;
                         }
-
-                        SDL_RenderPresent(renderer);
+                            SDL_RenderPresent(renderer);
                         }
-                        fond2 = IMG_Load("src/image-fond.png");
+                        const Uint64 timeout3 = SDL_GetTicks64()+5000;
+                            fond2 = IMG_Load("src/image-fond.png");
 
-                        if (fenetre == NULL) {
-                            SDL_ExitTexture;
+                            if (fenetre == NULL) {
+                                SDL_ExitTexture;
 
-                        }
-                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
-                        SDL_FreeSurface(fenetre); //liberation de l'espace
-                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
-                        SDL_FreeSurface(fond2); //liberation de l'espace
+                            }
+                            texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                            SDL_FreeSurface(fenetre); //liberation de l'espace
+                            texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                            SDL_FreeSurface(fond2); //liberation de l'espace
 
-                        if (texture2 == NULL) {
-                            SDL_ExitTexture;
-                        }
-                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
-                            SDL_ExitTexture;
-                        }
-                        SDL_RenderPresent(renderer);
-                       while (SDL_GetTicks64() < timeout){
-                        case SDL_SCANCODE_Z:
+                            if (texture2 == NULL) {
+                                SDL_ExitTexture;
+                            }
 
-                            printf("ok");
-                            score = score + 200;
-                         }
-                        if (SDL_GetTicks64() > timeout) {
+                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            rectangle2.x = 0;
+                            rectangle2.y = 0;
+                            rectangle2.h = 800;
+                            rectangle2.w = 1366;
+
+
+                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                                SDL_ExitTexture;
+                            }
+
+
+                            SDL_RenderPresent(renderer);
+                        continue;
+                        int SDL_WaitEventTimeout(SDL_Event * event, int timeout);
+
+                          while (SDL_GetTicks64() > timeout2){
+                                score = score - 100;
+                                printf("%d trop tard ! le score est de:", score);
+                            }
+
+
+                            continue;
+                            case SDL_SCANCODE_S:
+                                score = score - 50;
                             printf("%d le score est de : ", score);
-                            score = score - 100;
-                            printf("%d trop tard ! le score est de:", score);
+                            continue;
+
+                            case SDL_SCANCODE_Q:
+                                score = score - 50;
+                            printf("%d le score est de :", score);
+                            continue;
+                            case SDL_SCANCODE_D:
+                                score = score - 50;
+                            printf("%d le score est de : ", score);
+                            continue;
+
                         }
-
-
-                        continue;
-                        case SDL_SCANCODE_S:
-                            score = score - 50;
-                        printf("%d le score est de : ", score);
-                        continue;
-
-                        case SDL_SCANCODE_Q:
-                            score = score - 50;
-                        printf("%d le score est de :", score);
-                        continue;
-                        case SDL_SCANCODE_D:
-                            score = score - 50;
-                        printf("%d le score est de : ", score);
-                        continue;
-
-                    }
 
 
 
@@ -255,40 +302,6 @@ int main(int argc, char **argv) {
                     continue;
 
 
-                    if (SDL_Init(SDL_INIT_AUDIO) == -1) {
-                        printf("SDL_Init: %s\n", SDL_GetError());
-                        exit(1);
-                    }
-                    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
-                        printf("Mix_OpenAudio: %s\n", Mix_GetError());
-                        exit(2);
-                    }
-                    int flags = MIX_INIT_OGG | MIX_INIT_MOD;
-                    int initted = Mix_Init(flags);
-                    if (initted & flags != flags) {
-                        printf("Mix_Init: Failed to init required ogg and mod support!\n");
-                        printf("Mix_Init: %s\n", Mix_GetError());
-                        // handle error
-                    }
-                    Mix_Music *music;
-                    music = Mix_LoadMUS("src/music.mp3");
-                    if (!music) {
-                        printf("Mix_LoadMUS(\"music.mp3\"): %s\n", Mix_GetError());
-                        // this might be a critical error...
-                    }
-                    if (Mix_PlayMusic(music, -1) == -1) {
-                        printf("Mix_PlayMusic: %s\n", Mix_GetError());
-                    }
-                    // resume music playback
-                    Mix_ResumeMusic();
-                    printf("clic gauche effectué\n");
-
-                    if (event.button.button == SDL_BUTTON_RIGHT)
-                        printf("clic droit effectué\n");
-
-                    // pause music playback
-                    //Mix_PauseMusic();
-                    continue;
 
                 case SDL_WINDOWEVENT:
                     if (event.window.event == SDL_WINDOWEVENT_LEAVE)
