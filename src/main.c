@@ -3,12 +3,12 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
-//#include <audio.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <sqlite3.h>
 #include <time.h>
+#include <curl/curl.h>
 
 
 #define WINDOW_WIDTH 1366
@@ -44,11 +44,14 @@ int main(int argc, char **argv) {
 /*
     sqlite3 *db;
     char *zErrMsg = 0;
+    int user_id = -1;
     int rc;
+    char str_id[10];
 
-    rc = sqlite3_open("test.db", &db);
-
-    if( rc ) {
+    q = sqlite3_open("test.db", &db);
+        sprintf(str_id, "%d", user_id);
+        char *sql = build_sql("SELECT * FROM Calendar WHERE user_id = ", str_id);
+    if(q) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         return(0);
     } else {
@@ -171,7 +174,7 @@ int main(int argc, char **argv) {
 
 
                         // pause music playback
-                        //Mix_PauseMusic();
+
                     }
                     if (event.button.button == SDL_BUTTON_LEFT)
                         printf("%d/%d\n", event.motion.x, event.motion.y);
@@ -179,7 +182,32 @@ int main(int argc, char **argv) {
 
                     if (event.motion.x >= 600 && event.motion.x <= 800 && event.motion.y >= 300 &&
                         event.motion.y <= 400) {
-                        const Uint64 timeout = SDL_GetTicks64()+5000;
+
+                        const Uint64 timeout = SDL_GetTicks64() + 5000;
+                        if (SDL_Init(SDL_INIT_AUDIO) == -1) {
+                            printf("SDL_Init: %s\n", SDL_GetError());
+                            exit(1);
+                        }
+                        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+                            printf("Mix_OpenAudio: %s\n", Mix_GetError());
+                            exit(2);
+                        }
+                        int flags = MIX_INIT_OGG | MIX_INIT_MOD;
+                        int initted = Mix_Init(flags);
+                        if (initted & flags != flags) {
+                            printf("Mix_Init: Failed to init required ogg and mod support!\n");
+                            printf("Mix_Init: %s\n", Mix_GetError());
+                            // handle error
+                        }
+                        Mix_Music *music;
+                        music = Mix_LoadMUS("src/1er.mp3");
+                        if (!music) {
+                            printf("Mix_LoadMUS(\"1er.mp3\"): %s\n", Mix_GetError());
+                            // this might be a critical error...
+                        }
+                        if (Mix_PlayMusic(music, -1) == -1) {
+                            printf("Mix_PlayMusic: %s\n", Mix_GetError());
+                        }
 
                         fond2 = IMG_Load("src/image-fond.png");
 
@@ -209,37 +237,7 @@ int main(int argc, char **argv) {
                             SDL_ExitTexture;
                         }
                         while (SDL_GetTicks64() < timeout) {
-                        Z = IMG_Load("src/Z.jpg");
-
-                        if (fenetre == NULL) {
-                            SDL_ExitTexture;
-
-                        }
-                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
-                        SDL_FreeSurface(fenetre); //liberation de l'espace
-                        texture2 = SDL_CreateTextureFromSurface(renderer, Z);
-                        SDL_FreeSurface(Z); //liberation de l'espace
-
-                        if (texture2 == NULL) {
-                            SDL_ExitTexture;
-                        }
-                        SDL_Rect rectangle3;
-                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
-                            SDL_ExitTexture;
-                        }
-                        rectangle3.x = 200;
-                        rectangle3.y = 500;
-                        rectangle3.h = 100;
-                        rectangle3.w = 100;
-
-
-                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
-                            SDL_ExitTexture;
-                        }
-                            SDL_RenderPresent(renderer);
-                        }
-                        const Uint64 timeout3 = SDL_GetTicks64()+5000;
-                            fond2 = IMG_Load("src/image-fond.png");
+                            Z = IMG_Load("src/Z.jpg");
 
                             if (fenetre == NULL) {
                                 SDL_ExitTexture;
@@ -247,53 +245,245 @@ int main(int argc, char **argv) {
                             }
                             texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
                             SDL_FreeSurface(fenetre); //liberation de l'espace
-                            texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
-                            SDL_FreeSurface(fond2); //liberation de l'espace
+                            texture2 = SDL_CreateTextureFromSurface(renderer, Z);
+                            SDL_FreeSurface(Z); //liberation de l'espace
 
                             if (texture2 == NULL) {
                                 SDL_ExitTexture;
                             }
-
-                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                            SDL_Rect rectangle3;
+                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
                                 SDL_ExitTexture;
                             }
-                            rectangle2.x = 0;
-                            rectangle2.y = 0;
-                            rectangle2.h = 800;
-                            rectangle2.w = 1366;
+                            rectangle3.x = 200;
+                            rectangle3.y = 500;
+                            rectangle3.h = 100;
+                            rectangle3.w = 100;
 
 
-                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
                                 SDL_ExitTexture;
                             }
-
-
                             SDL_RenderPresent(renderer);
-                        continue;
-                        int SDL_WaitEventTimeout(SDL_Event * event, int timeout);
 
-                          while (SDL_GetTicks64() > timeout2){
-                                score = score - 100;
-                                printf("%d trop tard ! le score est de:", score);
-                            }
-
-
-                            continue;
-                            case SDL_SCANCODE_S:
-                                score = score - 50;
-                            printf("%d le score est de : ", score);
-                            continue;
-
-                            case SDL_SCANCODE_Q:
-                                score = score - 50;
-                            printf("%d le score est de :", score);
-                            continue;
-                            case SDL_SCANCODE_D:
-                                score = score - 50;
-                            printf("%d le score est de : ", score);
-                            continue;
+                            //   score = score - 50;
+                            //printf("%d le score est de : ", score);
 
                         }
+
+
+                        case SDL_SCANCODE_Z: ;
+                        Mix_CloseAudio();
+
+                        const Uint64 timeout3 = SDL_GetTicks64() + 5000;
+                        fond2 = IMG_Load("src/image-fond.png");
+
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                        SDL_FreeSurface(fond2); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+
+                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        rectangle2.x = 0;
+                        rectangle2.y = 0;
+                        rectangle2.h = 800;
+                        rectangle2.w = 1366;
+
+
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            SDL_ExitTexture;
+                        }
+
+
+                        SDL_RenderPresent(renderer);
+                        Mix_PauseMusic();
+
+                        while (SDL_GetTicks64() < timeout3) {
+                            Q = IMG_Load("src/Q.jpg");
+
+                            if (fenetre == NULL) {
+                                SDL_ExitTexture;
+
+                            }
+                            texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                            SDL_FreeSurface(fenetre); //liberation de l'espace
+                            texture2 = SDL_CreateTextureFromSurface(renderer, Q);
+                            SDL_FreeSurface(Q); //liberation de l'espace
+
+                            if (texture2 == NULL) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_Rect rectangle3;
+                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            rectangle3.x = 400;
+                            rectangle3.y = 500;
+                            rectangle3.h = 100;
+                            rectangle3.w = 100;
+
+
+                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_RenderPresent(renderer);
+                        }
+                        const Uint64 timeout4 = SDL_GetTicks64() + 5000;
+                        fond2 = IMG_Load("src/image-fond.png");
+
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                        SDL_FreeSurface(fond2); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+
+                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        rectangle2.x = 0;
+                        rectangle2.y = 0;
+                        rectangle2.h = 800;
+                        rectangle2.w = 1366;
+
+
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        SDL_RenderPresent(renderer);
+                        while (SDL_GetTicks64() < timeout4) {
+                            Q = IMG_Load("src/S.png");
+
+                            if (fenetre == NULL) {
+                                SDL_ExitTexture;
+
+                            }
+                            texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                            SDL_FreeSurface(fenetre); //liberation de l'espace
+                            texture2 = SDL_CreateTextureFromSurface(renderer, Q);
+                            SDL_FreeSurface(Q); //liberation de l'espace
+
+                            if (texture2 == NULL) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_Rect rectangle3;
+                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            rectangle3.x = 200;
+                            rectangle3.y = 500;
+                            rectangle3.h = 100;
+                            rectangle3.w = 100;
+
+
+                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_RenderPresent(renderer);
+                     //       case SDL_SCANCODE_S:
+                       //         score = score - 50;
+                     //       printf("%d le score est de : ", score);
+                            continue;
+                        }
+                        const Uint64 timeout5 = SDL_GetTicks64() + 5000;
+                        fond2 = IMG_Load("src/image-fond.png");
+
+                        if (fenetre == NULL) {
+                            SDL_ExitTexture;
+
+                        }
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                        SDL_FreeSurface(fenetre); //liberation de l'espace
+                        texture2 = SDL_CreateTextureFromSurface(renderer, fond2);
+                        SDL_FreeSurface(fond2); //liberation de l'espace
+
+                        if (texture2 == NULL) {
+                            SDL_ExitTexture;
+                        }
+
+                        if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle2.w, &rectangle2.h) != 0) {
+                            SDL_ExitTexture;
+                        }
+                        rectangle2.x = 0;
+                        rectangle2.y = 0;
+                        rectangle2.h = 800;
+                        rectangle2.w = 1366;
+
+
+                        if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle2) != 0) {
+                            SDL_ExitTexture;
+                        }
+
+
+                        SDL_RenderPresent(renderer);
+                        while (SDL_GetTicks64() < timeout5) {
+                            Q = IMG_Load("src/D.png");
+
+                            if (fenetre == NULL) {
+                                SDL_ExitTexture;
+
+                            }
+                            texture2 = SDL_CreateTextureFromSurface(renderer, fenetre);
+                            SDL_FreeSurface(fenetre); //liberation de l'espace
+                            texture2 = SDL_CreateTextureFromSurface(renderer, Q);
+                            SDL_FreeSurface(Q); //liberation de l'espace
+
+                            if (texture2 == NULL) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_Rect rectangle3;
+                            if (SDL_QueryTexture(texture2, NULL, NULL, &rectangle3.w, &rectangle3.h) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            rectangle3.x = 400;
+                            rectangle3.y = 500;
+                            rectangle3.h = 100;
+                            rectangle3.w = 100;
+
+
+                            if (SDL_RenderCopy(renderer, texture2, NULL, &rectangle3) != 0) {
+                                SDL_ExitTexture;
+                            }
+                            SDL_RenderPresent(renderer);
+                        }
+                        continue;
+                        int SDL_WaitEventTimeout(SDL_Event *event, int timeout);
+
+                        while (SDL_GetTicks64() > timeout2) {
+                            score = score - 100;
+                            printf("%d trop tard ! le score est de:", score);
+                        }
+
+
+                        continue;
+
+
+                        case SDL_SCANCODE_Q:
+                            score = score - 50;
+                        printf("%d le score est de :", score);
+                        continue;
+                        case SDL_SCANCODE_D:
+                            score = score - 50;
+                        printf("%d le score est de : ", score);
+                        continue;
+
+                    }
 
 
 
