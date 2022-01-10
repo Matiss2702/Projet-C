@@ -6,9 +6,10 @@
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
-#include <sqlite3.h>
+#include <mysql.h>
 #include <time.h>
-#include <curl/curl.h>
+#include <hpdf.h>
+
 
 
 #define WINDOW_WIDTH 1366
@@ -41,25 +42,7 @@ SDL_Texture *texture2 = NULL;
 
 int main(int argc, char **argv) {
     SDL_Renderer *renderer = NULL;
-/*
-    sqlite3 *db;
-    char *zErrMsg = 0;
-    int user_id = -1;
-    int rc;
-    char str_id[10];
 
-    q = sqlite3_open("test.db", &db);
-        sprintf(str_id, "%d", user_id);
-        char *sql = build_sql("SELECT * FROM Calendar WHERE user_id = ", str_id);
-    if(q) {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-        return(0);
-    } else {
-        fprintf(stderr, "Opened database successfully\n");
-    }
-    sqlite3_close(db);
-}
-*/
 
     int volume = SDL_MIX_MAXVOLUME;
 //les evenements
@@ -142,8 +125,47 @@ int main(int argc, char **argv) {
             switch (event.type) {
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_RIGHT) {
-                        printf("clic droit effectué\n");
 
+                        printf("clic droit effectué\n");
+                        if (event.button.button == SDL_BUTTON_RIGHT)
+                            printf("%d/%d\n", event.motion.x, event.motion.y);
+
+
+                        if (event.motion.x >= 800 && event.motion.x <= 1000 && event.motion.y >= 50 &&
+                            event.motion.y <= 100) {
+
+                            // BDD
+
+                            int connectSQL(char *name, char *password) {
+                                MYSQL *mysql;
+                                mysql = mysql_init(NULL);
+                                mysql_options(mysql, MYSQL_READ_DEFAULT_GROUP, "option");
+                                printf("Pseudo =%s et password =%s", name, password);
+                                scanf("%s", &name);
+                                scanf("%s", &password);
+
+                                char query[300];
+                                int connexion_result = 0;
+                                if (mysql_real_connect(mysql, "localhost", "myadmin", "password", "coinbased", 0, NULL,
+                                                       0)) {
+                                    sprintf(query, "SELECT name, password FROM user WHere name ='%s' AND password='%s'",
+                                            name, password);
+                                    mysql_query(mysql, query);
+                                    MYSQL_RES *result;
+                                    result = mysql_store_result(mysql);
+                                    if (mysql_fetch_row(result) != NULL) {
+                                        printf("Bienvenue !");
+                                        connexion_result = 1;
+                                    } else {
+                                        printf("Identifiant /Mot de Passe Incorrect");
+                                        connexion_result = 0;
+                                    }
+
+//mysqlfreeresult!!!
+                                    return connexion_result;
+                                }
+                            }
+                        }
                         if (SDL_Init(SDL_INIT_AUDIO) == -1) {
                             printf("SDL_Init: %s\n", SDL_GetError());
                             exit(1);
